@@ -1,9 +1,15 @@
+'''
+Example of how you might pull some useful code into a library of functions
+'''
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn import tree
+from sklearn.model_selection import train_test_split
 
 # Define a function that runs clustering on a df and returns the clusters for each row in df
 def Cluster(df, numClusters):
@@ -68,3 +74,21 @@ def PCAPlot(df, numClusters):
     plt.xticks(())
     plt.yticks(())
     plt.show()
+
+def DecisionTreeClassifier(X,y):
+    # Create a model - can use gini or entropy for the criterion
+    model = tree.DecisionTreeClassifier(criterion = "gini", max_depth = 12, min_samples_split = 300, min_samples_leaf = 150)
+
+    # Split into training and test sets (4 sets in total) 
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+    # Use training data to fit model (i.e. train the model) 
+    model.fit(X_train, y_train)
+
+    # Use training inputs to predict training outputs
+    y_hat_train = model.predict(X_train)
+
+    # Use test inputs to predict test outputs
+    y_hat_test = model.predict(X_test)
+    
+    return y_test, y_hat_test
