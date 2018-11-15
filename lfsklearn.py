@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+
+from sklearn.preprocessing import StandardScaler
 from sklearn import tree
 from sklearn.model_selection import train_test_split
 
@@ -92,3 +94,54 @@ def DecisionTreeClassifier(X,y):
     y_hat_test = model.predict(X_test)
     
     return y_test, y_hat_test
+
+
+def CorrPlot(df):
+    # Draw a chart showing correlation for original data
+    names = list(df)
+    fig, ax = plt.subplots(figsize=(5,5))
+    mat = ax.matshow(df.corr())
+    ax.set_xticks(np.arange(0,5,1))
+    ax.set_yticks(np.arange(0,5,1))
+    ax.set_xticklabels(names, rotation = 45)
+    ax.set_yticklabels(names)
+    fig.colorbar(mat)
+    plt.show()
+
+def PCAApply(df):
+    # Standardise the data to have mean 0 and stdev 1
+    scaler = StandardScaler()
+    data_std = scaler.fit_transform(df)   # standardise
+    data_std = pd.DataFrame(data_std)       # turn into a data frame
+    data_std.columns = list(df)           # add the original column names back on
+    
+    # Perform principal component analysis on the standardised data
+    pca = PCA(n_components=5)
+    pca.fit(data_std)
+
+    # Transform the data back into the shape we want
+    PC_df = pd.DataFrame(pca.transform(data_std), index=df.index, columns=['PC1','PC2','PC3','PC4','PC5'])
+    return pca, PC_df
+
+def ExplainedVarCumSum(pca):
+    # Get the explained variance for each PC as a %
+    exp_var_ratio = pca.explained_variance_ratio_
+    pca_explained_variance_cumsum = exp_var_ratio.cumsum()
+
+    # Draw a chart of the cumulative sum of explained variance as each PC is added
+    index = np.arange(len(pca_explained_variance_cumsum))+1
+    plt.bar(index, pca_explained_variance_cumsum)
+    plt.xlabel("PC")
+    plt.ylabel("% variance explained")
+    plt.title("PCA: Explained Variance Cumulative Sum")
+
+def ExplainedVar(pca):
+    # Get the explained variance for each PC as a %
+    exp_var_ratio = pca.explained_variance_ratio_
+
+    # Draw a chart of the explained variance for each PC
+    index = np.arange(len(exp_var_ratio))+1
+    plt.bar(index, exp_var_ratio)
+    plt.xlabel("PC")
+    plt.ylabel("% variance explained")
+    plt.title("PCA: Explained Variance Ratio")
